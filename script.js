@@ -36,24 +36,37 @@ document.addEventListener('DOMContentLoaded', () => {
     //task 2 end-----------------------------------------------------------------------
 })
 class Graph {
-    constructor(object, ctx) {
+    constructor(object, createCanvas) {
+        this.createCanvas = createCanvas;
+        this.ctx = this.createCanvas.ctx;
+
         this.object = object;
         this.a();
-        this.ctx = ctx
+
+        //this.segment();
     }
     a() {
         this.sumData = 0;
         for (let key in this.object) this.sumData += this.object[key];
+
+        let start = 0
+        let end = 0;
+        let rMinus = 100;
         for (let key in this.object) {
+            rMinus -= 10;
+            end = start + 360 / 100 * (this.object[key] / this.sumData) * 100;
             console.log(key + ' ' + this.object[key]);
+            this.segment(start, end, rMinus);
+            start = end;
         }
+        
     }
-    segment() {
-        canvasTask1Img.beginPath();
-        canvasTask1Img.moveTo(300, 300);
-        canvasTask1Img.arc(300, 300, 100, (Math.PI / 180) * 0, (Math.PI / 180) * 320);
-        canvasTask1Img.fill();
-        canvasTask1Img.stroke();
+    segment(start, end, r) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.createCanvas.width / 2, this.createCanvas.height / 2);
+        this.ctx.arc(this.createCanvas.width / 2, this.createCanvas.height / 2, r, (Math.PI / 180) * start, (Math.PI / 180) * end);
+        this.ctx.fill();
+        this.ctx.stroke();
     }
 }
 class ClockFace {
@@ -120,6 +133,7 @@ class Ctx {
         canvas.height = this.height;
         canvas.color = 'red';
         element.append(canvas);
+        //console.log(canvas.getContext('2d'));
         return canvas.getContext('2d');
     }
 }
