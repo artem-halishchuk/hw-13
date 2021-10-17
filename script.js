@@ -20,19 +20,20 @@ function popup() {
     });
 }
 document.addEventListener('DOMContentLoaded', () => {
-    let clockFace = new ClockFace(10, 'white', 'red', 50, new CtxClock());
+    let face = new ClockFace(10, 'white', 'black', 50, 'blue', new CtxClock());
+
     let hours = new Arrow(0.7, 16, 'red', new CtxClock());
-    hours.draw(Math.PI / 3);
     let minute = new Arrow(0.8, 8, 'green', new CtxClock());
-    minute.draw(Math.PI / 2);
     let second = new Arrow(0.9, 4, 'black', new CtxClock());
-    second.draw(Math.PI * 2);
+
+    let clock = new Clock(face, hours, minute, second);
+
     
     
 })
 
 class ClockFace {
-    constructor(border, color, colorBorder, fontSize, createCanvas) {
+    constructor(border, color, colorBorder, fontSize, colorFont, createCanvas) {
         this.createCanvas = createCanvas;
         this.ctx = this.createCanvas.ctx;
         this.center = {
@@ -44,8 +45,8 @@ class ClockFace {
         this.r = (this.center.x > this.center.y ? this.center.y : this.center.x);
         this.color = color;
         this.colorBorder = colorBorder;
-
-        this.draw = this.draw();
+        this.colorFont = colorFont;
+        //this.draw = this.draw();
         
     }
     face() {
@@ -61,7 +62,6 @@ class ClockFace {
     }
     hours() {
         this.ctx.beginPath();
-        
         for (let i = 4; i < 16; i++) {           
             let x = Math.cos((Math.PI / 180) * ((i - 3) * 30)) * (this.r - this.fontSize / 2 - (this.border+5));
             let y = Math.sin((Math.PI / 180) * ((i - 3) * 30)) * (this.r - this.fontSize / 2 - (this.border+5)) + this.fontSize / 3;
@@ -70,7 +70,7 @@ class ClockFace {
             if (i > 12) a = i - 12;
             this.ctx.textAlign = "center";
             this.ctx.font = `bold ${this.fontSize}px serif`;
-            this.ctx.fillStyle = "red";
+            this.ctx.fillStyle = this.colorFont;
             this.ctx.fillText(a, this.center.x + x, this.center.y + y);
         }
     }
@@ -148,6 +148,22 @@ class Arrow {
     }
 }
 
+class Clock {
+    constructor(face, arrowHours, arrowMinute, arrowSecond) {
+        this.arrowSecond = arrowSecond;
+        this.arrowMinute = arrowMinute;
+        this.arrowHours = arrowHours;
+        this.face = face;
+        this.draw = this.draw();
+    }
+    draw() {
+        this.face.draw();
+        this.arrowHours.draw();
+        this.arrowMinute.draw();
+        this.arrowSecond.draw();
+    }
+}
+
 class CanvasFrame {
     constructor(canvas, border) {
         this.border = border;
@@ -159,6 +175,7 @@ class CanvasFrame {
         //this.arrowSecond = new ArrowSecond(2, 'yellow', this.ctx);
         this.startAnimation();
         this.canvas = canvas;
+        this.clockFace = new ClockFace(10, 'white', 'red', 50, new CtxClock());
 
         //this.secondArrow = new ArrowSecond(4, 'black', new CtxClock());
         
