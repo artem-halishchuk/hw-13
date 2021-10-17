@@ -25,11 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let hours = new Arrow(0.7, 16, 'red', new CtxClock());
     let minute = new Arrow(0.8, 8, 'green', new CtxClock());
     let second = new Arrow(0.9, 4, 'black', new CtxClock());
-
     let clock = new Clock(face, hours, minute, second);
-
-    
-    
 })
 
 class ClockFace {
@@ -144,7 +140,10 @@ class Arrow {
         //this.ctx.arc(this.center.x, this.center.y, this.width*1.5, 0, 2 * Math.PI);
         this.ctx.arc(0, 0, this.width * 1.2, 0, 2 * Math.PI);
         this.ctx.fill();
-        this.ctx.beginPath();        
+        this.ctx.beginPath();
+    }
+    clear() {
+        this.ctx.clearRect(0, 0, this.createCanvas.width, this.createCanvas.height);
     }
 }
 
@@ -154,13 +153,33 @@ class Clock {
         this.arrowMinute = arrowMinute;
         this.arrowHours = arrowHours;
         this.face = face;
-        this.draw = this.draw();
+        this.miliSecond = new Date().getMilliseconds();
+        this.second = new Date().getSeconds();
+        this.minutes = new Date().getMinutes();
+        this.hours = new Date().getHours();
+        this.startAnimation();
+        this.face.draw();
+        //this.draw();
+    }
+    startAnimation() {
+        requestAnimationFrame(t => {
+            if (!this.startAnimationTime) this.startAnimationTime = t;
+            console.log(t - this.startAnimationTime);
+            this.clear();
+            this.draw();
+            this.startAnimation();
+        })
     }
     draw() {
-        this.face.draw();
-        this.arrowHours.draw();
-        this.arrowMinute.draw();
-        this.arrowSecond.draw();
+        //this.face.draw();
+        this.arrowHours.draw(Math.PI / 180 * 360 / 12 * (this.hours > 12 ? this.hours - 12 : this.hours) + Math.PI / 180 * 360 / 12 / 60 * this.minutes);
+        this.arrowMinute.draw(Math.PI / 180 * 360 / 60 * this.minutes + Math.PI / 180 * 360 / 60 / 60 * this.second);
+        this.arrowSecond.draw(Math.PI / 180 * 360 / 60 * this.second + Math.PI / 180 * 360 / 60 / 1000 * this.miliSecond);
+    }
+    clear() {
+        this.arrowHours.clear();
+        this.arrowMinute.clear();
+        this.arrowSecond.clear();
     }
 }
 
