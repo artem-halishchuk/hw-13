@@ -20,14 +20,42 @@ function popup() {
     });
 }
 document.addEventListener('DOMContentLoaded', () => {
-    let face = new ClockFace(10, 'white', 'black', 50, 'blue', new CtxClock());
+    //task 1 start---------------------------------------------------------------------
+    let ftuit = {
+        apple: 20, banana: 30, orange: 50
+    }
+    let graph = new Graph(ftuit, new Ctx(400, 400, '.task1'));
+    //task 1 end-----------------------------------------------------------------------
 
+    //task 2 start---------------------------------------------------------------------
+    let face = new ClockFace(10, 'white', 'black', 50, 'blue', new CtxClock());
     let hours = new Arrow(0.7, 16, 'red', new CtxClock());
     let minute = new Arrow(0.8, 8, 'green', new CtxClock());
     let second = new Arrow(0.9, 4, 'black', new CtxClock());
     let clock = new Clock(face, hours, minute, second);
+    //task 2 end-----------------------------------------------------------------------
 })
-
+class Graph {
+    constructor(object, ctx) {
+        this.object = object;
+        this.a();
+        this.ctx = ctx
+    }
+    a() {
+        this.sumData = 0;
+        for (let key in this.object) this.sumData += this.object[key];
+        for (let key in this.object) {
+            console.log(key + ' ' + this.object[key]);
+        }
+    }
+    segment() {
+        canvasTask1Img.beginPath();
+        canvasTask1Img.moveTo(300, 300);
+        canvasTask1Img.arc(300, 300, 100, (Math.PI / 180) * 0, (Math.PI / 180) * 320);
+        canvasTask1Img.fill();
+        canvasTask1Img.stroke();
+    }
+}
 class ClockFace {
     constructor(border, color, colorBorder, fontSize, colorFont, createCanvas) {
         this.createCanvas = createCanvas;
@@ -132,46 +160,41 @@ class Arrow {
         this.ctx.rotate(rortate);
         this.ctx.beginPath();
         this.ctx.fillStyle = this.color;
-        //this.ctx.rect(this.center.x - this.width / 2, this.center.y, this.width, -this.lenght);
         this.ctx.rect(-this.width / 2, 0, this.width, -this.lenght);
         this.ctx.fill();
         this.ctx.beginPath();
         this.ctx.fillStyle = this.color;
-        //this.ctx.arc(this.center.x, this.center.y, this.width*1.5, 0, 2 * Math.PI);
         this.ctx.arc(0, 0, this.width * 1.2, 0, 2 * Math.PI);
         this.ctx.fill();
-        this.ctx.beginPath();
+        this.ctx.beginPath();  
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
     clear() {
         this.ctx.clearRect(0, 0, this.createCanvas.width, this.createCanvas.height);
     }
 }
-
 class Clock {
     constructor(face, arrowHours, arrowMinute, arrowSecond) {
         this.arrowSecond = arrowSecond;
         this.arrowMinute = arrowMinute;
         this.arrowHours = arrowHours;
         this.face = face;
-        this.miliSecond = new Date().getMilliseconds();
-        this.second = new Date().getSeconds();
-        this.minutes = new Date().getMinutes();
-        this.hours = new Date().getHours();
-        this.startAnimation();
         this.face.draw();
-        //this.draw();
+        this.startAnimation();
     }
     startAnimation() {
-        requestAnimationFrame(t => {
-            if (!this.startAnimationTime) this.startAnimationTime = t;
-            console.log(t - this.startAnimationTime);
+        requestAnimationFrame(() => {
+            let data = new Date();
+            this.miliSecond = data.getMilliseconds();
+            this.second = data.getSeconds();
+            this.minutes = data.getMinutes();
+            this.hours = data.getHours();
             this.clear();
-            this.draw();
+            this.draw(); 
             this.startAnimation();
         })
     }
     draw() {
-        //this.face.draw();
         this.arrowHours.draw(Math.PI / 180 * 360 / 12 * (this.hours > 12 ? this.hours - 12 : this.hours) + Math.PI / 180 * 360 / 12 / 60 * this.minutes);
         this.arrowMinute.draw(Math.PI / 180 * 360 / 60 * this.minutes + Math.PI / 180 * 360 / 60 / 60 * this.second);
         this.arrowSecond.draw(Math.PI / 180 * 360 / 60 * this.second + Math.PI / 180 * 360 / 60 / 1000 * this.miliSecond);
@@ -180,48 +203,5 @@ class Clock {
         this.arrowHours.clear();
         this.arrowMinute.clear();
         this.arrowSecond.clear();
-    }
-}
-
-class CanvasFrame {
-    constructor(canvas, border) {
-        this.border = border;
-        this.ctx = canvas.getContext('2d');
-        this.width = canvas.getBoundingClientRect().width;
-        this.height = canvas.getBoundingClientRect().height;  
-        //this.circle = new Circle(100, 100, 50, 'blue');
-        this.clock = new Clock(this.border, this.width/2, 'RGBA(244,216,147,1)', 'red', this.ctx);
-        //this.arrowSecond = new ArrowSecond(2, 'yellow', this.ctx);
-        this.startAnimation();
-        this.canvas = canvas;
-        this.clockFace = new ClockFace(10, 'white', 'red', 50, new CtxClock());
-
-        //this.secondArrow = new ArrowSecond(4, 'black', new CtxClock());
-        
-    }
-    startAnimation() {
-        requestAnimationFrame(t => {
-            if(!this.startAnimationTime) this.startAnimationTime = t;
-            this.draw(t - this.startAnimationTime);
-            this.startAnimation();
-        })
-    }
-
-    draw(time) {       
-        let currentPosition = time * this.width/60000;
-        if(currentPosition <= this.width) {
-            //this.circle.x = currentPosition-this.circle.r;
-        }
-        else {
-            this.clear();
-            this.startAnimationTime = 0;
-        }
-        
-        this.clock.draw();
-        this.secondArrow.draw(45);
-        this.clear();
-    }
-    clear() {
-        this.ctx.clearRect(0, 0, this.width, this.height);
     }
 }
