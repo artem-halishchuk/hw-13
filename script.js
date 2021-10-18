@@ -22,9 +22,9 @@ function popup() {
 document.addEventListener('DOMContentLoaded', () => {
     //task 1 start---------------------------------------------------------------------
     let ftuit = {
-        apple: 20, banana: 30, orange: 50
+        apple: 20, banana: 30, orange: 50, pear: 34, lemon: 23, melon: 12, watermelon: 89,
     }
-    let graph = new Graph(ftuit, new Ctx(400, 400, '.task1'));
+    let graph = new Graph(ftuit, new Ctx(400, 500, '.task1'), 200, 20);
     //task 1 end-----------------------------------------------------------------------
 
     //task 2 start---------------------------------------------------------------------
@@ -36,13 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
     //task 2 end-----------------------------------------------------------------------
 })
 class Graph {
-    constructor(object, createCanvas) {
+    constructor(object, createCanvas, radius, fontSize) {
         this.createCanvas = createCanvas;
         this.ctx = this.createCanvas.ctx;
+        this.radius = radius;
+        this.fontSize = fontSize;
 
         this.object = object;
+        this.getColors();
         this.a();
-
+        console.log(this.colors);
         //this.segment();
     }
     a() {
@@ -51,22 +54,52 @@ class Graph {
 
         let start = 0
         let end = 0;
-        let rMinus = 100;
+        let i = 0;
+        let radius = this.radius;
+        let legendMove = 0;
+        let stringLength = 0;
+        let enter = 0;
         for (let key in this.object) {
-            rMinus -= 10;
+            radius -= 4;
+            legendMove += 30;
             end = start + 360 / 100 * (this.object[key] / this.sumData) * 100;
             console.log(key + ' ' + this.object[key]);
-            this.segment(start, end, rMinus);
+            this.segment(start, end, radius, this.colors[i]);
+            if (stringLength > this.createCanvas.width-100) {
+                stringLength = 0;
+                enter += 30;
+            }
+            this.legend(key, this.colors[i], stringLength, enter);
+            stringLength += key.length*18;
+            
             start = end;
+            i++;
         }
         
     }
-    segment(start, end, r) {
+    segment(start, end, r, color) {
         this.ctx.beginPath();
-        this.ctx.moveTo(this.createCanvas.width / 2, this.createCanvas.height / 2);
-        this.ctx.arc(this.createCanvas.width / 2, this.createCanvas.height / 2, r, (Math.PI / 180) * start, (Math.PI / 180) * end);
+        this.ctx.moveTo(this.createCanvas.width/2, this.radius);
+        this.ctx.arc(this.createCanvas.width/2, this.radius, r, (Math.PI / 180) * start, (Math.PI / 180) * end);
+        this.ctx.fillStyle = color;
         this.ctx.fill();
         this.ctx.stroke();
+    }
+    legend(text, color, moveX, moveY) {
+        let ispace = 5;
+        this.ctx.beginPath();
+        this.ctx.fillRect(moveX, this.radius*2+20+moveY , 20, -20);
+
+        this.ctx.font = `bold ${this.fontSize}px serif`;
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillText(text, moveX+20+3, this.radius*2+20+moveY);
+    }
+    getColors(){
+        let pallet = ["#0074D9", "#FF4136", "#2ECC40", "#FF851B", "#7FDBFF", "#B10DC9", "#FFDC00", "#001f3f", "#39CCCC", "#01FF70", "#85144b", "#F012BE", "#3D9970", "#111111", "#AAAAAA"];
+        this.colors = [];
+        for(let i = 0; i < Object.keys(this.object).length; i++) {
+            this.colors.push(pallet[i % pallet.length]);
+        }
     }
 }
 class ClockFace {
